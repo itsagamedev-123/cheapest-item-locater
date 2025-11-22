@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Global Cheapest Daily-Life Product Finder</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+  body { margin: 0; font-family: Arial; background: #f2f2f2; }
+  header { background: #222; color: #fff; padding: 15px; text-align: center; font-size: 24px; }
+  #controls { background: #fff; display: flex; gap: 10px; flex-wrap: wrap; padding: 12px; border-bottom: 1px solid #ccc; }
+  #map { width: 100%; height: 600px; }
+  select, input, button { padding: 10px; font-size: 16px; }
+  #donate { padding: 10px; font-size: 14px; }
+</style>
+</head>
+
+<body>
+
+<header>🌍 Global Cheapest Daily-Life Product Finder</header>
+
+<div id="controls">
+  <select id="languageSelector"></select>
+
+  <select id="citySelector">
+    <option value="delhi">Delhi</option>
+    <option value="mumbai">Mumbai</option>
+    <option value="kolkata">Kolkata</option>
+    <option value="chennai">Chennai</option>
+    <option value="bengaluru">Bengaluru</option>
+    <option value="hyderabad">Hyderabad</option>
+    <option value="pune">Pune</option>
+    <option value="ahmedabad">Ahmedabad</option>
+    <option value="jaipur">Jaipur</option>
+    <option value="surat">Surat</option>
+    <option value="lucknow">Lucknow</option>
+    <option value="kanpur">Kanpur</option>
+    <option value="nagpur">Nagpur</option>
+
+    <option value="newyork">New York</option>
+    <option value="neworleans">New Orleans</option>
+    <option value="losangeles">Los Angeles</option>
+    <option value="chicago">Chicago</option>
+    <option value="houston">Houston</option>
+
+    <option value="london">London</option>
+    <option value="manchester">Manchester</option>
+    <option value="birmingham">Birmingham</option>
+
+    <option value="tokyo">Tokyo</option>
+    <option value="osaka">Osaka</option>
+    <option value="kyoto">Kyoto</option>
+
+    <option value="paris">Paris</option>
+    <option value="lyon">Lyon</option>
+    <option value="marseille">Marseille</option>
+
+    <option value="dubai">Dubai</option>
+    <option value="abudhabi">Abu Dhabi</option>
+    <option value="sharjah">Sharjah</option>
+
+    <option value="berlin">Berlin</option>
+    <option value="munich">Munich</option>
+    <option value="hamburg">Hamburg</option>
+
+    <option value="rome">Rome</option>
+    <option value="milan">Milan</option>
+    <option value="naples">Naples</option>
+
+    <option value="toronto">Toronto</option>
+    <option value="vancouver">Vancouver</option>
+    <option value="montreal">Montreal</option>
+  </select>
+
+  <input id="searchItem" type="text" placeholder="Search item (e.g., towel, fridge, chair)">
+  <button onclick="searchPrice()">Search</button>
+</div>
+
+<div id="donate">If you want to donate, donate to this number: <b>9136006675</b></div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+// languages
+const languages = ["English","Hindi","Spanish","French","German","Chinese","Japanese","Korean","Arabic","Russian","Portuguese","Italian","Turkish","Dutch"];
+languages.forEach(l => {
+  const opt = document.createElement("option");
+  opt.textContent = l;
+  document.getElementById("languageSelector").appendChild(opt);
+});
+
+// coordinates
+const cityCoords = {
+  delhi:[28.6139,77.2090], mumbai:[19.0760,72.8777], kolkata:[22.5726,88.3639],
+  chennai:[13.0827,80.2707], bengaluru:[12.9716,77.5946], hyderabad:[17.3850,78.4867],
+  pune:[18.5204,73.8567], ahmedabad:[23.0225,72.5714], jaipur:[26.9124,75.7873],
+  surat:[21.1702,72.8311], lucknow:[26.8467,80.9462], kanpur:[26.4499,80.3319],
+  nagpur:[21.1458,79.0882],
+
+  newyork:[40.7128,-74.0060], neworleans:[29.9511,-90.0715], losangeles:[34.0522,-118.2437],
+  chicago:[41.8781,-87.6298], houston:[29.7604,-95.3698],
+
+  london:[51.5074,-0.1278], manchester:[53.4808,-2.2426], birmingham:[52.4862,-1.8904],
+
+  tokyo:[35.6762,139.6503], osaka:[34.6937,135.5023], kyoto:[35.0116,135.7681],
+
+  paris:[48.8566,2.3522], lyon:[45.7640,4.8357], marseille:[43.2965,5.3698],
+
+  dubai:[25.2048,55.2708], abudhabi:[24.4539,54.3773], sharjah:[25.3463,55.4209],
+
+  berlin:[52.5200,13.4050], munich:[48.1351,11.5820], hamburg:[53.5511,9.9937],
+
+  rome:[41.9028,12.4964], milan:[45.4642,9.1900], naples:[40.8518,14.2681],
+
+  toronto:[43.651070,-79.347015], vancouver:[49.2827,-123.1207], montreal:[45.5017,-73.5673]
+};
+
+// map init
+let map = L.map('map').setView(cityCoords.delhi, 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+
+// search
+function searchPrice() {
+  const item = document.getElementById("searchItem").value;
+  const city = document.getElementById("citySelector").value;
+  const price = prompt("Enter max price:");
+
+  if (!item) return alert("Please enter an item!");
+  if (!price || isNaN(price)) return alert("Enter a valid price!");
+
+  map.setView(cityCoords[city], 12);
+
+  L.marker(cityCoords[city])
+    .addTo(map)
+    .bindPopup(`Cheapest <b>${item}</b> under ${price}<br>${city}`)
+    .openPopup();
+}
+
+// roam markers
+map.on("moveend", () => {
+  const item = document.getElementById("searchItem").value;
+  if (!item) return;
+
+  Object.keys(cityCoords).forEach(c => {
+    L.circleMarker(cityCoords[c], { radius: 5 })
+      .addTo(map)
+      .bindPopup(`${item} available in <b>${c}</b>`);
+  });
+});
+</script>
+
+</body>
+</html>
